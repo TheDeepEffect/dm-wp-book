@@ -27,6 +27,7 @@ class DmWpBook {
 	public function __construct() {
 		add_action( 'init', array( $this, 'custom_post_type_book' ), 0 );
 		add_action( 'init', array( $this, 'custom_taxonomy_book_category' ), 0 );
+		add_action( 'init', array( $this, 'custom_taxonomy_book_tag' ), 0 );
 	}
 
 
@@ -52,18 +53,18 @@ class DmWpBook {
 	}
 
 	/************************************************
-	 * Creation of custom taxanomy
+	 * Creation of custom taxanomies
 	 ***********************************************/
 
 	/**
-	 * Method to create custom taxonomy named Book Category
+	 * Method to create custom hierarchical  taxonomy named Book Category
 	 *
 	 * @return void
 	 */
 	public function custom_taxonomy_book_category() {
 		$labels = array(
-			'name'          => _x( 'Book Categories', 'taxonomy general name', 'dm-book' ),
-			'singular_name' => _x( 'Book Category', 'taxonomy singular name', 'dm-book' ),
+			'name'          => _x( 'Category', 'taxonomy general name', 'dm-book' ),
+			'singular_name' => _x( 'Category', 'taxonomy singular name', 'dm-book' ),
 			'search_items'  => __( 'Search Category', 'dm-book' ),
 			'all_items'     => __( 'All Categories', 'dm-book' ),
 			'edit_item'     => __( 'Edit Category', 'dm-book' ),
@@ -89,6 +90,40 @@ class DmWpBook {
 
 	}
 
+	/**
+	 * Method to create custom non-hierarchical  taxonomy named Book Tag
+	 *
+	 * @return void
+	 */
+	public function custom_taxonomy_book_tag() {
+		$labels = array(
+			'name'          => _x( 'Tag', 'taxonomy general name', 'dm-book' ),
+			'singular_name' => _x( 'Tag', 'taxonomy singular name', 'dm-book' ),
+			'search_items'  => __( 'Search Tag', 'dm-book' ),
+			'all_items'     => __( 'All Tags', 'dm-book' ),
+			'edit_item'     => __( 'Edit Tag', 'dm-book' ),
+			'update_item'   => __( 'Update Tag', 'dm-book' ),
+			'add_new_item'  => __( 'Add New Tag', 'dm-book' ),
+			'new_item_name' => __( 'New Tag Name', 'dm-book' ),
+			'menu_name'     => __( 'Book Tag', 'dm-book' ),
+		);
+		$args   = array(
+			'labels'             => $labels,
+			'description'        => __( 'Diffrent tags of book you might want to add.', 'dm-book' ),
+			'hierarchical'       => false,
+			'public'             => true,
+			'publicly_queryable' => false,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'show_in_nav_menus'  => true,
+			'show_tagcloud'      => true,
+			'show_in_quick_edit' => true,
+			'show_admin_column'  => true,
+		);
+		register_taxonomy( 'book_tag', array( 'book' ), $args );
+
+	}
+
 	/************************************************
 	 * Activation Deactivation and Uninstallation
 	 ***********************************************/
@@ -103,6 +138,7 @@ class DmWpBook {
 		// Generate a custom post type.
 		$this->custom_post_type_book();
 		$this->custom_taxonomy_book_category();
+		$this->custom_taxonomy_book_tag();
 
 		// Flush re wrte rules.
 		flush_rewrite_rules();
