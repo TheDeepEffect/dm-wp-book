@@ -27,7 +27,7 @@ class DmWpBook {
 	public function __construct() {
 		add_action( 'init', array( $this, 'custom_post_type_book' ), 0 );
 		add_action( 'init', array( $this, 'custom_taxonomy_book_category' ), 0 );
-		add_action( 'init', array( $this, 'custom_taxonomy_book_tag' ), 0 );
+		add_action( 'init', array( $this, 'custom_taxonomy_book_tag' ), 1 );
 	}
 
 
