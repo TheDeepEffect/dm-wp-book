@@ -6,45 +6,58 @@
  * @author  Deep Manek
  */
 
-/** Plugin Name: WP Book
- * Plugin URI:https://github.com/TheDeepEffect/dm-wp-book
- * Description: A plugin for adding books to your posts.
- * Version:     1.0.0
- * Author:      Deep Manek
- * Text Domain: dm-book
- * / */
-
-defined( 'ABSPATH' ) || die( 'No No No' );
-$dm_wb_cpt_path = plugin_dir_path( __FILE__ ) . 'class-dmwpbookcpt.php';
-require $dm_wb_cpt_path;
-
-global $cpt_obj;
-$cpt_obj = new DmWpBookCpt();
 /**
- * DmWpBook is a basic class for now.
+ * Class to generate custom post type Book
  */
-class DmWpBook {
+class DmWpBookCpt {
+
 	/**
-	 * Construction to call procedures like add_action() to hook our plugin as we can not do that in class directly.
+	 * Function to register a post type.
 	 *
-	 * @param DmWpBookCpt $cpt_obj  instance of a class to access methods.
+	 * @return void
 	 */
-	public function __construct( $cpt_obj ) {
-		add_action( 'init', array( $cpt_obj, 'custom_post_type_book' ), 0 );
-		add_action( 'init', array( $cpt_obj, 'custom_taxonomy_book_category' ), 0 );
-		add_action( 'init', array( $cpt_obj, 'custom_taxonomy_book_tag' ), 0 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'custom_assets' ), 0 );
+	public function custom_post_type_book() {
 
-		// Hook: add_meta_boxes_<custom_post_typr>.
-		add_action( 'add_meta_boxes_book', array( $this, 'custom_meta_box_book_meta' ), 0 );
+		$labels = array(
+			'name'               => _x( 'Books', 'post type general name', 'dm-book' ),
+			'singular_name'      => _x( 'Book', 'post type singular name', 'dm-book' ),
+			'menu_name'          => _x( 'Books', 'admin menu', 'dm-book' ),
+			'name_admin_bar'     => _x( 'Book', 'add new on admin bar', 'dm-book' ),
+			'add_new'            => _x( 'Add New', 'book', 'dm-book' ),
+			'add_new_item'       => __( 'Add New Book', 'dm-book' ),
+			'new_item'           => __( 'New Book', 'dm-book' ),
+			'edit_item'          => __( 'Edit Book', 'dm-book' ),
+			'view_item'          => __( 'View Book', 'dm-book' ),
+			'all_items'          => __( 'All Books', 'dm-book' ),
+			'search_items'       => __( 'Search Books', 'dm-book' ),
+			'parent_item_colon'  => __( 'Parent Books:', 'dm-book' ),
+			'not_found'          => __( 'No books found.', 'dm-book' ),
+			'not_found_in_trash' => __( 'No books found in Trash.', 'dm-book' ),
+		);
+
+		$args = array(
+			'labels'             => $labels,
+			'description'        => __( 'Description.', 'dm-book' ),
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'query_var'          => true,
+			'rewrite'            => array( 'slug' => 'book' ),
+			'capability_type'    => 'post',
+			'has_archive'        => true,
+			'hierarchical'       => false,
+			'menu_position'      => null,
+			'menu_icon'          => 'dashicons-book',
+			'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
+		);
+
+		register_post_type(
+			'book',
+			$args
+		);
+
 	}
-
-
-	/************************************************
-	 * Creation of custom post type.
-	 ***********************************************/
-
-
 	/************************************************
 	 * Creation of custom taxanomies
 	 ***********************************************/
@@ -120,58 +133,4 @@ class DmWpBook {
 
 	}
 
-	/************************************************
-	 * Creation of Custom Meta Box for books.
-	 ***********************************************/
-
-
-
-	/************************************************
-	 * Activation Deactivation.
-	 ***********************************************/
-
-	/**
-	 * Function that works on activation of plugin
-	 *
-	 * @return void
-	 */
-	public function activate() {
-		// Flush re wrte rules.
-
-		flush_rewrite_rules();
-	}
-
-	/**
-	 * Function that works on deactivation of a plugin
-	 *
-	 * @return void
-	 */
-	public function deactivate() {
-
-		// Flush re wrte rules.
-		flush_rewrite_rules();
-	}
-
-
-	/**************************************
-	 * CSS and JS files are added
-	 */
-	public function custom_assets() {
-		wp_enqueue_style( 'dm - wp - book - style - id', plugin_dir_url( __FILE__ ) . 'includes / dm - wp - book - stylesheet . css', null, '1.0.0' );
-
-	}
-
 }
-
-if ( class_exists( 'DmWpBook' ) ) {
-	global $dm_wp_book;
-	$dm_wp_book = new DmWpBook( $cpt_obj );
-}
-// Stating that this is the activation function.
-register_activation_hook( __FILE__, array( $dm_wp_book, 'activate' ) );
-
-// Stating that this is the deactivation function.
-register_deactivation_hook( __FILE__, array( $dm_wp_book, 'deactivate' ) );
-
-
-
