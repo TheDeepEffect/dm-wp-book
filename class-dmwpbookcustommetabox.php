@@ -34,30 +34,62 @@ class DmWpBookCustomMetabox {
 					<input 
 						type="text" 
 						name="dm_wp_book_author" 
-						placeholder="Author Name..." 
+						placeholder="Author Name..."
+						value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'dm_wp_book_author', true ) ); ?>"
 					/>
 					</p>
 					<p class="dm_wp_book_meta_fields">
 							<label for="dm_wp_book_price">Price :</label>
-							<input type="number" min="0" step="0.01" name="dm_wp_book_price" placeholder="Price" />
+							<input 
+								type="number"
+								min="0"
+								step="0.01"
+								name="dm_wp_book_price" 
+								placeholder="Price"
+								value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'dm_wp_book_price', true ) ); ?>"
+							/>
 					</p>
 					<p class="dm_wp_book_meta_fields">
 							<label for="dm_wp_book_publisher">Publisher :</label>
-							<input type="text" name="dm_wp_book_publisher" placeholder="Publisher" />
+							<input 
+								type="text"
+								name="dm_wp_book_publisher"
+								placeholder="Publisher"
+								value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'dm_wp_book_publisher', true ) ); ?>"
+							/>
 					</p>
 					<p class="dm_wp_book_meta_fields">
 						<label for="dm_wp_book_year">Year :</label>
 						<select id="dm_wp_book_year" name="dm_wp_book_year">
-							<option value="-1" selected>Year</option>
+							<option value="-1" selected>
+								<?php
+								if ( get_post_meta( get_the_ID(), 'dm_wp_book_year', true ) == '-1' ) {
+									echo 'Year';
+								} else {
+									echo esc_attr( get_post_meta( get_the_ID(), 'dm_wp_book_year', true ) );}
+								?>
+							</option>
 						</select>
 					</p>
 					<p class="dm_wp_book_meta_fields">
 						<label for="dm_wp_book_edition">Edition :</label>
-						<input type="text" id="dm_wp_book_edition" name="dm_wp_book_edition" placeholder="edition" />
+						<input 
+							type="text" 
+							id="dm_wp_book_edition" 
+							name="dm_wp_book_edition" 
+							placeholder="edition"
+							value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'dm_wp_book_edition', true ) ); ?>"
+						/>
 					</p>
 					<p class="dm_wp_book_meta_fields">
 						<label for="dm_wp_book_url">URL :</label>
-						<input type="url"id="dm_wp_book_url" name="dm_wp_book_url" placeholder="URL" />
+						<input 
+							type="url"
+							id="dm_wp_book_url" 
+							name="dm_wp_book_url" 
+							placeholder="URL"
+							value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'dm_wp_book_url', true ) ); ?>"
+						/>
 					</p>
 				</div>
 			</div>
@@ -85,43 +117,32 @@ class DmWpBookCustomMetabox {
 		if ( $post_slug !== $post->post_type ) {
 			return;
 		}
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		$fields = array(
+			'dm_wp_book_author',
+			'dm_wp_book_price',
+			'dm_wp_book_publisher',
+			'dm_wp_book_year',
+			'dm_wp_book_edition',
+			'dm_wp_book_url',
+		);
+
 		/************************************
 		* Saving values to db.
 		*/
-		$author = '';
-		if ( isset( $_POST['dm_wp_book_author'] ) ) {
-			$author = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_author'] ) );
+		foreach ( $fields as $field ) {
+			if ( isset( $_POST[ $field ] ) ) {
+				update_post_meta( $post_id, $field, sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) );
+			}
 		}
-
-		$price = 0;
-		if ( isset( $_POST['dm_wp_book_price'] ) ) {
-			$price = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_price'] ) );
-		}
-
-		$publisher = '';
-		if ( isset( $_POST['dm_wp_book_publisher'] ) ) {
-			$publisher = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_publisher'] ) );
-		}
-
-		$year = '';
-		if ( isset( $_POST['dm_wp_book_year'] ) ) {
-			$year = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_year'] ) );
-		}
-		$edition = '';
-		if ( isset( $_POST['dm_wp_book_edition'] ) ) {
-			$edition = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_edition'] ) );
-		}
-		$url = '';
-		if ( isset( $_POST['dm_wp_book_url'] ) ) {
-			$url = sanitize_url( $_POST['dm_wp_book_url'] ); //phpcs:ignore
-		}
-
-		update_post_meta( $post_id, 'dmwp_db_book_author_name', $author );
-		update_post_meta( $post_id, 'dmwp_db_book_price', $price );
-		update_post_meta( $post_id, 'dmwp_db_book_publisher', $publisher );
-		update_post_meta( $post_id, 'dmwp_db_book_year', $year );
-		update_post_meta( $post_id, 'dmwp_db_book_edition', $edition );
-		update_post_meta( $post_id, 'dmwp_db_book_url', $url );
 
 	}
 
