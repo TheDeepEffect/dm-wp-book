@@ -1,3 +1,9 @@
-html{
-    background-color: blue !important; 
+.dm_wp_book_meta_div {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  grid-row-gap: 0.1vw;
+  grid-column-gap: 0.2vh;
+}
+.dm_wp_book_meta_fields {
+  display: contents;
 }

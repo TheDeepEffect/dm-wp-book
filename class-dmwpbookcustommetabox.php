@@ -16,7 +16,7 @@ class DmWpBookCustomMetabox {
 	 * @return void
 	 */
 	public function custom_meta_box_book_meta() {
-		add_meta_box( 'dm - wp - book - meta - id', __( 'Book Metadata', 'dm - book' ), array( $this, 'custom_meta_box_render' ), 'book', 'advanced', 'high' );
+		add_meta_box( 'dm-wp-book-meta-id', __( 'Book Metadata', 'dm-book' ), array( $this, 'custom_meta_box_render' ), 'book', 'advanced', 'high' );
 	}
 
 	/**
@@ -25,46 +25,39 @@ class DmWpBookCustomMetabox {
 	 * @return void
 	 */
 	public function custom_meta_box_render() {
-		// A.
+		wp_nonce_field( basename( __FILE__ ), 'dm_wp_metabox_nonoce', true, true );
 		?>
 			<div class="main">
-				<div class="dm-wp-book-meta-div">
-					<style scoped>
-						.dm-wp-book-meta-div{
-							display:grid;
-							grid-template-columns: max-content 1fr;
-							grid-row-gap: 0.1vw;
-							grid-column-gap: 0.2vh;
-						}
-						.dm-wp-book-meta-fields{
-							display: contents;
-						}
-					</style>
-					<p class="dm-wp-book-meta-fields">
-					<label for="dwm-wp-book-author">Author name :</label>
-					<input type="text" name="dm-wp-book-aurhor" placeholder="Author Name..." />
+				<div class="dm_wp_book_meta_div">
+					<p class="dm_wp_book_meta_fields">
+					<label for="dm_wp_book_author">Author name :</label>
+					<input 
+						type="text" 
+						name="dm_wp_book_author" 
+						placeholder="Author Name..." 
+					/>
 					</p>
-					<p class="dm-wp-book-meta-fields">
-							<label for="dwm-wp-book-price">Price :</label>
-							<input type="number" name="dm-wp-book-price" placeholder="Price" />
+					<p class="dm_wp_book_meta_fields">
+							<label for="dm_wp_book_price">Price :</label>
+							<input type="number" min="0" step="0.01" name="dm_wp_book_price" placeholder="Price" />
 					</p>
-					<p class="dm-wp-book-meta-fields">
-							<label for="dwm-wp-book-publisher">Publisher :</label>
-							<input type="text" name="dm-wp-book-publisher" placeholder="Publisher" />
+					<p class="dm_wp_book_meta_fields">
+							<label for="dm_wp_book_publisher">Publisher :</label>
+							<input type="text" name="dm_wp_book_publisher" placeholder="Publisher" />
 					</p>
-					<p class="dm-wp-book-meta-fields">
-						<label for="dm-wp-book-year">Year :</label>
-						<select id="dm-wp-book-year" name="dm-wp-book-year">
+					<p class="dm_wp_book_meta_fields">
+						<label for="dm_wp_book_year">Year :</label>
+						<select id="dm_wp_book_year" name="dm_wp_book_year">
 							<option value="-1" selected>Year</option>
 						</select>
 					</p>
-					<p class="dm-wp-book-meta-fields">
-						<label for="dm-wp-book-edition">Edition :</label>
-						<input type="number"id="dm-wp-book-edition" name="dm-wp-book-edition" placeholder="edition" />
+					<p class="dm_wp_book_meta_fields">
+						<label for="dm_wp_book_edition">Edition :</label>
+						<input type="text" id="dm_wp_book_edition" name="dm_wp_book_edition" placeholder="edition" />
 					</p>
-					<p class="dm-wp-book-meta-fields">
-						<label for="dm-wp-book-url">URL :</label>
-						<input type="url"id="dm-wp-book-url" name="dm-wp-book-url" placeholder="URL" />
+					<p class="dm_wp_book_meta_fields">
+						<label for="dm_wp_book_url">URL :</label>
+						<input type="url"id="dm_wp_book_url" name="dm_wp_book_url" placeholder="URL" />
 					</p>
 				</div>
 			</div>
@@ -75,10 +68,60 @@ class DmWpBookCustomMetabox {
 	/**
 	 * Saves the info from meta box.
 	 *
-	 * @param any $post_id  post_id to access the field values.
-	 * @return void
+	 * @param integer $post_id  post_id to access the posts.
+	 * @param post    $post post.
+	 * @return mixed
 	 */
-	public function custom_meta_box_save( $post_id ) {
+	public function custom_meta_box_save( $post_id, $post ) {
+
+		// Verification of nonce.
+		if ( ( ! isset( $_POST['dm_wp_metabox_nonoce'] ) ) || ( ! wp_verify_nonce( $_POST['dm_wp_metabox_nonoce'], basename( __FILE__ ) ) ) ) { //phpcs:ignore
+			echo 'error error error error error errror error';
+			return $post_id;	// phpcs:ignore
+		}
+
+		// Verification of post slug.
+		$post_slug = 'book';
+		if ( $post_slug !== $post->post_type ) {
+			return;
+		}
+		/************************************
+		* Saving values to db.
+		*/
+		$author = '';
+		if ( isset( $_POST['dm_wp_book_author'] ) ) {
+			$author = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_author'] ) );
+		}
+
+		$price = 0;
+		if ( isset( $_POST['dm_wp_book_price'] ) ) {
+			$price = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_price'] ) );
+		}
+
+		$publisher = '';
+		if ( isset( $_POST['dm_wp_book_publisher'] ) ) {
+			$publisher = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_publisher'] ) );
+		}
+
+		$year = '';
+		if ( isset( $_POST['dm_wp_book_year'] ) ) {
+			$year = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_year'] ) );
+		}
+		$edition = '';
+		if ( isset( $_POST['dm_wp_book_edition'] ) ) {
+			$edition = sanitize_text_field( wp_unslash( $_POST['dm_wp_book_edition'] ) );
+		}
+		$url = '';
+		if ( isset( $_POST['dm_wp_book_url'] ) ) {
+			$url = sanitize_url( $_POST['dm_wp_book_url'] ); //phpcs:ignore
+		}
+
+		update_post_meta( $post_id, 'dmwp_db_book_author_name', $author );
+		update_post_meta( $post_id, 'dmwp_db_book_price', $price );
+		update_post_meta( $post_id, 'dmwp_db_book_publisher', $publisher );
+		update_post_meta( $post_id, 'dmwp_db_book_year', $year );
+		update_post_meta( $post_id, 'dmwp_db_book_edition', $edition );
+		update_post_meta( $post_id, 'dmwp_db_book_url', $url );
 
 	}
 

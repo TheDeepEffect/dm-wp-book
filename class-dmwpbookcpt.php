@@ -49,7 +49,7 @@ class DmWpBookCpt {
 			'hierarchical'       => false,
 			'menu_position'      => null,
 			'menu_icon'          => 'dashicons-book',
-			'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
+			'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt', 'comments' ),
 		);
 
 		register_post_type(
